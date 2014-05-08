@@ -1,0 +1,2 @@
+2014/05/08 15:28:22 open symbols1.txt: no such file or directory
+2014/05/08 15:28:22 invalid argument
