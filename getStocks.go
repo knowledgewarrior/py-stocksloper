@@ -158,10 +158,10 @@ func getStocks(symbol string) {
 func main() {
   Init(os.Stderr)
   os.Remove("Slopes.csv")
-  os.Remove("baseseeker_log.txt")
+  os.Remove("getstocks_log.txt")
   os.RemoveAll("./db")
   os.Mkdir("./db", 0700)
-  logf, err := os.OpenFile("baseseeker_log.txt", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+  logf, err := os.OpenFile("getstocks_log.txt", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
   if err != nil { fmt.Println(err) }
   defer logf.Close()
   log.SetOutput(logf)

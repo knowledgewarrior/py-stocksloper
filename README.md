@@ -1,4 +1,4 @@
-pystocksloper
+stocksloper
 =============
 Stocksloper grabs stocks from Yahoo Finance and calculates linear regression analysis on the slope of the data based on the formula.
 

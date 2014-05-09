@@ -1,2 +1,1 @@
-2014/05/08 15:28:22 open symbols1.txt: no such file or directory
-2014/05/08 15:28:22 invalid argument
+2014/05/08 15:30:52 Get http://ichart.finance.yahoo.com/table.csv?s=ABG&a=4&b=09&c=2012&d=4&e=08&f=2014&g=d: dial tcp 208.71.44.31:80: i/o timeout
