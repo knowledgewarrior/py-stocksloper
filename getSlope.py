@@ -3,6 +3,55 @@
 import sqlite3
 import sys
 import os
+import decimal
+
+def float_to_decimal(f):
+    # http://docs.python.org/library/decimal.html#decimal-faq
+    "Convert a floating point number to a Decimal with no loss of information"
+    n, d = f.as_integer_ratio()
+    numerator, denominator = decimal.Decimal(n), decimal.Decimal(d)
+    ctx = decimal.Context(prec=60)
+    result = ctx.divide(numerator, denominator)
+    while ctx.flags[decimal.Inexact]:
+        ctx.flags[decimal.Inexact] = False
+        ctx.prec *= 2
+        result = ctx.divide(numerator, denominator)
+    return result
+
+def f(number, sigfig):
+    # http://stackoverflow.com/questions/2663612/nicely-representing-a-floating-point-number-in-python/2663623#2663623
+    assert(sigfig>0)
+    try:
+        d=decimal.Decimal(number)
+    except TypeError:
+        d=float_to_decimal(float(number))
+    sign,digits,exponent=d.as_tuple()
+    if len(digits) < sigfig:
+        digits = list(digits)
+        digits.extend([0] * (sigfig - len(digits)))
+    shift=d.adjusted()
+    result=int(''.join(map(str,digits[:sigfig])))
+    # Round the result
+    if len(digits)>sigfig and digits[sigfig]>=5: result+=1
+    result=list(str(result))
+    # Rounding can change the length of result
+    # If so, adjust shift
+    shift+=len(result)-sigfig
+    # reset len of result to sigfig
+    result=result[:sigfig]
+    if shift >= sigfig-1:
+        # Tack more zeros on the end
+        result+=['0']*(shift-sigfig+1)
+    elif 0<=shift:
+        # Place the decimal point in between digits
+        result.insert(shift+1,'.')
+    else:
+        # Tack zeros on the front
+        assert(shift<0)
+        result=['0.']+['0']*(-shift-1)+result
+    if sign:
+        result.insert(0,'-')
+    return ''.join(result)
 
 def getslope(symbol, ntd, slope):
     conn = sqlite3.connect('db/'+symbol)
@@ -20,10 +69,8 @@ def getslope(symbol, ntd, slope):
         sumxsumx = sumx * sumx
         slope = (ntdsumxy - sumxsumy) / (ntdsumxx - sumxsumx)
         if -0.001 <= slope <= 0.001:
-            # getcontext().prec = 64
-            # print(Decimal(slope))
-            '%.1f' % round(slope, 64)
-            print(slope)
+            slope=f(slope,64)
+            print(symbol + " : " + slope)
             return True
         elif -0.001 >= slope >= 0.001:
             ntd = ntd + 1
@@ -37,9 +84,7 @@ from os import listdir
 from os.path import isfile, join
 from decimal import *
 files = [ f for f in listdir('db') if isfile(join('db',f)) ]
-#print(files)
 for symbol in files:
-    #print(f)
     ntd = 120
     slope = 1
     getslope(symbol, ntd, slope)
