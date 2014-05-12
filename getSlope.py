@@ -18,7 +18,7 @@ def float_to_decimal(f):
         result = ctx.divide(numerator, denominator)
     return result
 
-def f(number, sigfig):
+def floater(number, sigfig):
     # http://stackoverflow.com/questions/2663612/nicely-representing-a-floating-point-number-in-python/2663623#2663623
     assert(sigfig>0)
     try:
@@ -68,9 +68,11 @@ def getslope(symbol, ntd, slope):
         ntdsumxx = ntd * sumxx
         sumxsumx = sumx * sumx
         slope = (ntdsumxy - sumxsumy) / (ntdsumxx - sumxsumx)
+        slope = slope * -1.0
         if -0.001 <= slope <= 0.001:
-            slope=f(slope,64)
-            print(symbol + " : " + slope)
+            slope = floater(slope,32)
+            print >>f1, (symbol) + (",") + (slope)
+            #print(symbol + "," + slope)
             return True
         elif -0.001 >= slope >= 0.001:
             ntd = ntd + 1
@@ -84,8 +86,8 @@ from os import listdir
 from os.path import isfile, join
 from decimal import *
 files = [ f for f in listdir('db') if isfile(join('db',f)) ]
+f1=open('./slopes.csv', 'w+')
 for symbol in files:
     ntd = 120
     slope = 1
     getslope(symbol, ntd, slope)
-
