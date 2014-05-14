@@ -17,20 +17,14 @@ import StringIO
 import sqlite3
 import shutil
 
-shutil.rmtree("db")
-os.makedirs("db")
 
-symbols = [line.strip() for line in open('symbols-med.txt')]
-
-start_date = datetime.datetime.now().date() + datetime.timedelta(-709)
-
-now_date = datetime.datetime.now().date()
-start_y,start_m,start_d = str(start_date).split('-')
-start_m = int(start_m) -1
-now_y,now_m,now_d = str(now_date).split('-')
-now_m = int(now_m) -1
-
-for symbol in symbols:
+def getStocks(symbol):
+  start_date = datetime.datetime.now().date() + datetime.timedelta(-709)
+  now_date = datetime.datetime.now().date()
+  start_y,start_m,start_d = str(start_date).split('-')
+  start_m = int(start_m) -1
+  now_y,now_m,now_d = str(now_date).split('-')
+  now_m = int(now_m) -1
   yurl = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%s&b=%s&c=%s&d=%s&e=%s&f=%s&g=d" % (symbol, start_m, start_d, start_y, now_m, now_d, now_y)
   try:
     yresponse = urllib2.urlopen(yurl)
@@ -57,3 +51,10 @@ for symbol in symbols:
           c.execute('''insert into stockhistory(ydate,closeprice,volume)
             values(?,?,?)''', (yadate,close,volume))
           db.commit()
+
+shutil.rmtree("db")
+os.makedirs("db")
+
+symbols = [line.strip() for line in open('symbols-sml.txt')]
+for symbol in symbols:
+  getStocks(symbol)

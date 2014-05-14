@@ -56,7 +56,6 @@ def floater(number, sigfig):
 def getslope(symbol, ntd, slope):
     conn = sqlite3.connect('db/'+symbol)
     c = conn.cursor()
-    print symbol
     for row in c.execute('select sum(id) as sumx, sum(closeprice) as sumy,'
         'sum(id * closeprice) as sumxy, sum(id * id) as sumxx from(select id,'
         'closeprice from stockhistory order by ydate desc limit ?);', (ntd,)):
@@ -66,7 +65,6 @@ def getslope(symbol, ntd, slope):
         sumxsumx = row[0] * row[0]
         slope = (ntdsumxy - sumxsumy) / (ntdsumxx - sumxsumx)
         slope = slope * -1.0
-        print slope
         if -0.001 <= slope <= 0.001:
             slope = floater(slope,32)
             for volrow in c.execute('select avg(volume) from stockhistory;'):
@@ -82,19 +80,6 @@ def getslope(symbol, ntd, slope):
             return getslope(symbol, ntd, slope)
         else:
             return False
-
-        #      if -0.001 <= slope <= 0.001:
-        #     slope = floater(slope,32)
-        #     print >>f1, (symbol) + (",") + (slope)
-        #     #print(symbol + "," + slope)
-        #     return True
-        # elif -0.001 >= slope >= 0.001:
-        #     ntd = ntd + 1
-        #     return getslope(symbol, ntd, slope)
-        # else:
-        #     c.close()
-        #     conn.close()
-        #     return False
 
 from os import listdir
 from os.path import isfile, join
