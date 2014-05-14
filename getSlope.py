@@ -1,4 +1,4 @@
-#!/Library/Frameworks/Python.framework/Versions/3.4/bin/python3
+#!/usr/bin/python
 
 import sqlite3
 import sys
@@ -56,37 +56,52 @@ def floater(number, sigfig):
 def getslope(symbol, ntd, slope):
     conn = sqlite3.connect('db/'+symbol)
     c = conn.cursor()
+    print symbol
     for row in c.execute('select sum(id) as sumx, sum(closeprice) as sumy,'
         'sum(id * closeprice) as sumxy, sum(id * id) as sumxx from(select id,'
         'closeprice from stockhistory order by ydate desc limit ?);', (ntd,)):
-        sumx = row[0]
-        sumy = row[1]
-        sumxy = row[2]
-        sumxx = row[3]
-        ntdsumxy = ntd * sumxy
-        sumxsumy = sumx * sumy
-        ntdsumxx = ntd * sumxx
-        sumxsumx = sumx * sumx
+        ntdsumxy = ntd * row[2]
+        sumxsumy = row[0] * row[1]
+        ntdsumxx = ntd * row[3]
+        sumxsumx = row[0] * row[0]
         slope = (ntdsumxy - sumxsumy) / (ntdsumxx - sumxsumx)
         slope = slope * -1.0
+        print slope
         if -0.001 <= slope <= 0.001:
             slope = floater(slope,32)
-            print >>f1, (symbol) + (",") + (slope)
-            #print(symbol + "," + slope)
+            for volrow in c.execute('select avg(volume) from stockhistory;'):
+                avgvol = floater(volrow[0],8)
+            for pricerow in c.execute('select closeprice from stockhistory order by ydate desc limit 1;'):
+                price = pricerow[0]
+            print >>f1, (symbol) + (",") + str(price) + (",") + str(slope) + (",") + str(avgvol)+ (",") + str(ntd)
             return True
-        elif -0.001 >= slope >= 0.001:
-            ntd = ntd + 1
-            return getslope(symbol, ntd, slope)
-        else:
+        elif ntd <= 503:
+            ntd += 1
             c.close()
             conn.close()
+            return getslope(symbol, ntd, slope)
+        else:
             return False
+
+        #      if -0.001 <= slope <= 0.001:
+        #     slope = floater(slope,32)
+        #     print >>f1, (symbol) + (",") + (slope)
+        #     #print(symbol + "," + slope)
+        #     return True
+        # elif -0.001 >= slope >= 0.001:
+        #     ntd = ntd + 1
+        #     return getslope(symbol, ntd, slope)
+        # else:
+        #     c.close()
+        #     conn.close()
+        #     return False
 
 from os import listdir
 from os.path import isfile, join
 from decimal import *
 files = [ f for f in listdir('db') if isfile(join('db',f)) ]
 f1=open('./slopes.csv', 'w+')
+print >>f1, "Symbol,ClosePrice,Slope,AvgVolume,Trading Days"
 for symbol in files:
     ntd = 120
     slope = 1

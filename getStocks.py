@@ -1,3 +1,14 @@
+#!/usr/bin/python
+
+# Linear regression analysis for Yahoo Finance historical data
+# Jason Fowler
+
+# Sample url for obtaining historical data for Apple from Yahoo:
+# http://ichart.finance.yahoo.com/table.csv?s=AAPL&a=00&b=01&c=2014&d=04&e=12&f=2014&g=d
+
+# Change the file in symbols = line.strip...
+
+
 import datetime
 import csv
 import os
@@ -9,39 +20,40 @@ import shutil
 shutil.rmtree("db")
 os.makedirs("db")
 
-#test
-start_date = datetime.datetime.now().date() + datetime.timedelta(-199)
-#prod
-#start_date = datetime.datetime.now().date() + datetime.timedelta(-709)
+symbols = [line.strip() for line in open('symbols-med.txt')]
+
+start_date = datetime.datetime.now().date() + datetime.timedelta(-709)
+
 now_date = datetime.datetime.now().date()
 start_y,start_m,start_d = str(start_date).split('-')
+start_m = int(start_m) -1
 now_y,now_m,now_d = str(now_date).split('-')
+now_m = int(now_m) -1
 
-#prod
-symbols = [line.strip() for line in open('symbols-med.txt')]
 for symbol in symbols:
-  db = sqlite3.connect("db/"+symbol)
-  c = db.cursor()
-  c.execute("create table stockhistory (id integer not null primary key, ydate text, closeprice float, volume integer);")
-  db.commit()
-
-  from urllib2 import Request, urlopen, URLError, HTTPError
   yurl = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%s&b=%s&c=%s&d=%s&e=%s&f=%s&g=d" % (symbol, start_m, start_d, start_y, now_m, now_d, now_y)
   try:
     yresponse = urllib2.urlopen(yurl)
-  except HTTPError, e:
-      # print 'The server couldn\'t fulfill the request.'
-      # print 'Error code: ', e.code
-  except URLError, e:
-      # print 'We failed to reach a server.'
-      # print 'Reason: ', e.reason
+  except:
+    yresponse = False
   else:
     ycr = csv.reader(yresponse)
     ycr.next()
+    db = sqlite3.connect("db/"+symbol)
+    c = db.cursor()
+    c.execute("create table stockhistory (id integer not null primary key, ydate text, closeprice float, volume integer);")
     for row in ycr:
-      yadate = row[0]
-      close = row[4]
-      volume = row[5]
-      c.execute('''insert into stockhistory(ydate,closeprice,volume)
-        values(?,?,?)''', (yadate,close,volume))
-      db.commit()
+      try:
+        close = row[4]
+      except:
+        close = False
+      else:
+        try:
+          volume = row[5]
+        except:
+          volume = False
+        else:
+          yadate = row[0]
+          c.execute('''insert into stockhistory(ydate,closeprice,volume)
+            values(?,?,?)''', (yadate,close,volume))
+          db.commit()
