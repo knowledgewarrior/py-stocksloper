@@ -60,11 +60,11 @@ os.makedirs("db")
 symbols = [line.strip() for line in open('symbols1.txt')]
 for symbol in symbols:
   getStocks(symbol)
-time.sleep(5)
+time.sleep(3600)
 symbols = [line.strip() for line in open('symbols2.txt')]
 for symbol in symbols:
   getStocks(symbol)
-time.sleep(5)
+time.sleep(3600)
 symbols = [line.strip() for line in open('symbols3.txt')]
 for symbol in symbols:
   getStocks(symbol)
