@@ -16,6 +16,7 @@ import urllib2
 import StringIO
 import sqlite3
 import shutil
+import time
 
 
 def getStocks(symbol):
@@ -55,6 +56,26 @@ def getStocks(symbol):
 shutil.rmtree("db")
 os.makedirs("db")
 
-symbols = [line.strip() for line in open('symbols-sml.txt')]
+#prod
+symbols = [line.strip() for line in open('symbols1.txt')]
 for symbol in symbols:
   getStocks(symbol)
+time.sleep(5)
+symbols = [line.strip() for line in open('symbols2.txt')]
+for symbol in symbols:
+  getStocks(symbol)
+time.sleep(5)
+symbols = [line.strip() for line in open('symbols3.txt')]
+for symbol in symbols:
+  getStocks(symbol)
+
+# test
+# symbols = [line.strip() for line in open('symbols-test-1.txt')]
+# for symbol in symbols:
+#   getStocks(symbol)
+# time.sleep(5)
+# symbols = [line.strip() for line in open('symbols-test-2.txt')]
+# for symbol in symbols:
+#   getStocks(symbol)
+
+# End of file

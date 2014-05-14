@@ -1,4 +1,6 @@
 *.db
 *.gz
+*.tgz
+db
 symbols.txt
 testing
