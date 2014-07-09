@@ -56,6 +56,7 @@ def floater(number, sigfig):
 def getslope(symbol, ntd, slope):
     conn = sqlite3.connect('db/'+symbol)
     c = conn.cursor()
+    #print ntd,symbol,slope
     for row in c.execute('select sum(id) as sumx, sum(closeprice) as sumy,'
         'sum(id * closeprice) as sumxy, sum(id * id) as sumxx from(select id,'
         'closeprice from stockhistory order by ydate desc limit ?);', (ntd,)):
@@ -88,6 +89,19 @@ files = [ f for f in listdir('db') if isfile(join('db',f)) ]
 f1=open('./slopes.csv', 'w+')
 print >>f1, "Symbol,ClosePrice,Slope,AvgVolume,Trading Days"
 for symbol in files:
-    ntd = 120
-    slope = 1
-    getslope(symbol, ntd, slope)
+    db = sqlite3.connect('db/'+symbol)
+    c = db.cursor()
+    c.execute("select count(*) from stockhistory")
+    rows = c.fetchall()
+    for row in rows:
+        if row[0] < 121:
+            print(symbol+":  less than 121 rows")
+            os.remove('db/'+symbol)
+        elif row[0] > 121:
+            print(symbol+":  greater than 121 rows")
+            ntd = 120
+            slope = 1
+            getslope(symbol, ntd, slope)
+        else:
+            print("ah crap")
+

@@ -12,6 +12,7 @@
 import datetime
 import csv
 import os
+import sys
 import urllib2
 import StringIO
 import sqlite3
@@ -27,10 +28,6 @@ def getStocks(symbol):
   now_y,now_m,now_d = str(now_date).split('-')
   now_m = int(now_m) -1
 
-  db = sqlite3.connect("db/"+symbol)
-  c = db.cursor()
-  c.execute("create table stockhistory (id integer not null primary key, ydate text, closeprice float, volume integer)")
-
   yurl = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%s&b=%s&c=%s&d=%s&e=%s&f=%s&g=d" % (symbol, start_m, start_d, start_y, now_m, now_d, now_y)
   req = urllib2.Request(yurl)
   try:
@@ -44,34 +41,39 @@ def getStocks(symbol):
       ycr.next()
       for row in ycr:
         #print row[0],row[5],row[4]
+        db = sqlite3.connect("db/"+symbol)
+        c = db.cursor()
         c.execute("insert into stockhistory (ydate, closeprice, volume) values (?, ?, ?)", (row[0], row[5], row[4]))
-        db.commit()
     except csv.Error, e:
       print e
+
+def createDb(symbol):
+  db = sqlite3.connect("db/"+symbol)
+  c = db.cursor()
+  try:
+    c.execute("create table stockhistory (id integer not null primary key, ydate text, closeprice float, volume integer)")
+  except sqlite3.OperationalError:
+    print symbol+": already used"
+
 
 shutil.rmtree("db")
 os.makedirs("db")
 
+#test
+#symbols = [line.strip() for line in open('symbols-sml.txt')]
 #prod
+#symbols = [line.strip() for line in open('symbols2.txt')]
+
 symbols = [line.strip() for line in open('symbols1.txt')]
 for symbol in symbols:
+  createDb(symbol)
   getStocks(symbol)
-time.sleep(3600)
+time.sleep(300)
 symbols = [line.strip() for line in open('symbols2.txt')]
 for symbol in symbols:
+  createDb(symbol)
   getStocks(symbol)
-time.sleep(3600)
+time.sleep(300)
 symbols = [line.strip() for line in open('symbols3.txt')]
-for symbol in symbols:
-  getStocks(symbol)
 
-# test
-# symbols = [line.strip() for line in open('symbols-test-1.txt')]
-# for symbol in symbols:
-#   getStocks(symbol)
-# time.sleep(5)
-# symbols = [line.strip() for line in open('symbols-test-2.txt')]
-# for symbol in symbols:
-#   getStocks(symbol)
 
-# End of file
