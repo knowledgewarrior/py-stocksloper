@@ -95,10 +95,10 @@ for symbol in files:
     rows = c.fetchall()
     for row in rows:
         if row[0] < 121:
-            print(symbol+":  less than 121 rows")
+            #print(symbol+":  less than 121 rows")
             os.remove('db/'+symbol)
         elif row[0] > 121:
-            print(symbol+":  greater than 121 rows")
+            #print(symbol+":  greater than 121 rows")
             ntd = 120
             slope = 1
             getslope(symbol, ntd, slope)
