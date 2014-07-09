@@ -26,32 +26,28 @@ def getStocks(symbol):
   start_m = int(start_m) -1
   now_y,now_m,now_d = str(now_date).split('-')
   now_m = int(now_m) -1
+
+  db = sqlite3.connect("db/"+symbol)
+  c = db.cursor()
+  c.execute("create table stockhistory (id integer not null primary key, ydate text, closeprice float, volume integer)")
+
   yurl = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%s&b=%s&c=%s&d=%s&e=%s&f=%s&g=d" % (symbol, start_m, start_d, start_y, now_m, now_d, now_y)
+  req = urllib2.Request(yurl)
   try:
-    yresponse = urllib2.urlopen(yurl)
-  except:
-    yresponse = False
+    resp = urllib2.urlopen(req)
+  except urllib2.URLError, e:
+    if e.code > 399:
+      return
   else:
-    ycr = csv.reader(yresponse)
-    ycr.next()
-    db = sqlite3.connect("db/"+symbol)
-    c = db.cursor()
-    c.execute("create table stockhistory (id integer not null primary key, ydate text, closeprice float, volume integer);")
-    for row in ycr:
-      try:
-        close = row[4]
-      except:
-        close = False
-      else:
-        try:
-          volume = row[5]
-        except:
-          volume = False
-        else:
-          yadate = row[0]
-          c.execute('''insert into stockhistory(ydate,closeprice,volume)
-            values(?,?,?)''', (yadate,close,volume))
-          db.commit()
+    try:
+      ycr = csv.reader(resp)
+      ycr.next()
+      for row in ycr:
+        #print row[0],row[5],row[4]
+        c.execute("insert into stockhistory (ydate, closeprice, volume) values (?, ?, ?)", (row[0], row[5], row[4]))
+        db.commit()
+    except csv.Error, e:
+      print e
 
 shutil.rmtree("db")
 os.makedirs("db")
