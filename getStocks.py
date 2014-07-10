@@ -43,7 +43,7 @@ def getStocks(symbol):
         #print row[0],row[5],row[4]
         db = sqlite3.connect("db/"+symbol)
         c = db.cursor()
-        c.execute("insert into stockhistory (ydate, closeprice, volume) values (?, ?, ?)", (row[0], row[5], row[4]))
+        c.execute("insert into stockhistory (ydate, closeprice, volume) values (?, ?, ?)", (row[0], row[4], row[5]))
         db.commit()
     except csv.Error, e:
       print e

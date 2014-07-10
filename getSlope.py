@@ -97,6 +97,7 @@ for symbol in files:
         if row[0] < 121:
             #print(symbol+":  less than 121 rows")
             os.remove('db/'+symbol)
+            break
         elif row[0] > 121:
             #print(symbol+":  greater than 121 rows")
             ntd = 120
