@@ -63,8 +63,6 @@ os.makedirs("db")
 #test
 #symbols = [line.strip() for line in open('symbols-sml.txt')]
 #prod
-#symbols = [line.strip() for line in open('symbols2.txt')]
-
 symbols = [line.strip() for line in open('symbols1.txt')]
 for symbol in symbols:
   createDb(symbol)
@@ -76,5 +74,40 @@ for symbol in symbols:
   getStocks(symbol)
 time.sleep(300)
 symbols = [line.strip() for line in open('symbols3.txt')]
+for symbol in symbols:
+  createDb(symbol)
+  getStocks(symbol)
+time.sleep(300)
+symbols = [line.strip() for line in open('symbols4.txt')]
+for symbol in symbols:
+  createDb(symbol)
+  getStocks(symbol)
+time.sleep(300)
+symbols = [line.strip() for line in open('symbols5.txt')]
+for symbol in symbols:
+  createDb(symbol)
+  getStocks(symbol)
+time.sleep(300)
+symbols = [line.strip() for line in open('symbols6.txt')]
+for symbol in symbols:
+  createDb(symbol)
+  getStocks(symbol)
+time.sleep(300)
+symbols = [line.strip() for line in open('symbols7.txt')]
+for symbol in symbols:
+  createDb(symbol)
+  getStocks(symbol)
+time.sleep(300)
+symbols = [line.strip() for line in open('symbols8.txt')]
+for symbol in symbols:
+  createDb(symbol)
+  getStocks(symbol)
+time.sleep(300)
+symbols = [line.strip() for line in open('symbols9.txt')]
+for symbol in symbols:
+  createDb(symbol)
+  getStocks(symbol)
+time.sleep(300)
+symbols = [line.strip() for line in open('symbols10.txt')]
 
 
