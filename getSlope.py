@@ -53,7 +53,7 @@ def floater(number, sigfig):
         result.insert(0,'-')
     return ''.join(result)
 
-def getslope(symbol, ntd, slope):
+def getslope(symbol, ntd, slope, avgvol):
     conn = sqlite3.connect('db/'+symbol)
     c = conn.cursor()
     #print ntd,symbol,slope
@@ -67,18 +67,16 @@ def getslope(symbol, ntd, slope):
         slope = (ntdsumxy - sumxsumy) / (ntdsumxx - sumxsumx)
         slope = slope * -1.0
         if -0.001 <= slope <= 0.001:
-            slope = floater(slope,32)
-            for volrow in c.execute('select avg(volume) from stockhistory;'):
-                avgvol = floater(volrow[0],8)
+            slope = floater(slope,16)
             for pricerow in c.execute('select closeprice from stockhistory order by ydate desc limit 1;'):
                 price = pricerow[0]
-            print >>f1, (symbol) + (",") + str(price) + (",") + str(slope) + (",") + str(avgvol)+ (",") + str(ntd)
-            return True
+                print >>f1, (symbol) + (",") + str(price) + (",") + str(slope) + (",") + str(avgvol) + (",") + str(ntd)
+                return True
         elif ntd <= 503:
             ntd += 1
             c.close()
             conn.close()
-            return getslope(symbol, ntd, slope)
+            return getslope(symbol, ntd, slope, avgvol)
         else:
             return False
 
@@ -100,9 +98,15 @@ for symbol in files:
             break
         elif row[0] > 121:
             #print(symbol+":  greater than 121 rows")
-            ntd = 120
-            slope = 1
-            getslope(symbol, ntd, slope)
+            for volrow in c.execute('select avg(volume) from stockhistory;'):
+                avgvol = volrow[0]
+                if avgvol > 25000:
+                    ntd = 120
+                    slope = 1
+                    getslope(symbol, ntd, slope, avgvol)
+                else:
+                    #print(symbol+":  "+floater(avgvol,2)+" less than 25k")
+                    break
         else:
             print("ah crap")
 

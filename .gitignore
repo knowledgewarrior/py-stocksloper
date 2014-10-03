@@ -2,5 +2,8 @@
 *.gz
 *.tgz
 db
+db/*
 symbols.txt
 testing
+*.zip
+*.csv
